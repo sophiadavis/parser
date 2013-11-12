@@ -78,7 +78,7 @@ def earley(grammar, sentence):
         
         print
         print
-        print "bin number ", i
+        print " ##################### bin number ", i, "#####################"
 
         for rule in chart[i]:
             print
@@ -88,7 +88,15 @@ def earley(grammar, sentence):
             chart = predictor(grammar, chart, i, rule)
             chart = scanner(grammar, chart, i, rule, sentence)
             chart = completer(chart, i, rule)
-
+    print
+    print '~~~~~~~~~~~ results ~~~~~~~~~~~'
+    for i in range(0, n_bins):
+        print
+        print ' ~~~~~~~ bin number', i, '~~~~~~~ '
+        for rule in chart[i]:
+            print rule
+    print
+    
 def add_rule(rule, chart_bin):
     if rule not in chart_bin:
         print 'adding rule: ', rule
@@ -124,7 +132,7 @@ def predictor(grammar, chart, index, rule):
         for beta_next in pos_rules[beta_current]:
             chart[index] = add_rule([beta_current, ['.', beta_next], index, index], chart[index])
 
-    print "predictor completed: "
+    print "predictor completed."
     print 'index', index, chart[index]
     print
     return chart
@@ -163,35 +171,52 @@ def scanner(grammar, chart, index, rule, sentence):
 #             print " ...matching... "
 # #             chart[index + 1].append([rule[dot + 1][0], [sentence[index]], '.', index, (index + 1)])
 #             chart[index + 1] = add_rule([rule[dot + 1][0], [sentence[index]], '.', index, (index + 1)], chart[index + 1])
-    print "scanner completed: "
+    print "scanner completed."
     print 'index', index, chart[index]
-    print 'index', index + 1, chart[index + 1]
-    print
+    if len(chart.keys()) != index + 1:
+        print 'index', index + 1, chart[index + 1]
     return chart
 
 def completer(chart, index, rule):
     print "in completer: "
     
     dot = rule[1].index('.')
+    rule_start = rule[2]
 #     print rule
     
     if dot == (len(rule[1]) - 1):
         print 'end of rule'
         completed = rule[0]
-        rule_start = 4
+        
         print "looking for: ", completed
-        print '...wip...'
-#         for rule in chart[rule_start]:
-#             dot = rule.index('.')
-#             if rule[dot + 1] == completed:
-#                 chart[index] = add_rule([rule[0:dot], completed, '.', rule],chart[index])
-#         for i in range(0, index):
-#             for rule in chart[i]:
-#                 if [completed] in rule:
-#                     at = rule.index([completed])
-#                     if rule[at - 1] == '.':
-#                         start = rule[3]
-#                         chart[index].append(rule[0], )         
+
+        for rule_prev in chart[rule_start]:
+            print 'rule: ', rule_prev
+            beta_prev = rule_prev[1]
+            dot_prev = beta_prev.index('.')
+            print len(beta_prev), dot_prev
+            if len(beta_prev) is not (dot_prev + 1):
+                print '  item: ', beta_prev[dot_prev + 1]
+                if beta_prev[dot_prev + 1] == completed:
+                    print '     moving ', rule_prev
+                    completed_index = beta_prev.index(completed)
+                    rule_prev_start = rule_prev[2]
+                    alpha = rule_prev[0]
+                    print '     dot at ', dot_prev, '__  completed at ', completed_index, '__ rule start', rule_prev_start
+                    # add rule with [alpha, [rule with dot moved], old start, current]
+                    processed = beta_prev[0:dot_prev]
+                    processed.append(completed)
+                    processed.append('.')
+                    beta = processed + beta_prev[completed_index + 1:]
+                    rule_progress = [alpha, beta, rule_prev_start, index]
+                    print '     ', rule_progress
+                    chart[index] = add_rule(rule_progress, chart[index])
+    
+    print "completer completed."
+    print 'index', index, chart[index]
+    if len(chart.keys()) != index + 1:
+        print 'index', index + 1, chart[index + 1]
+    print
     return chart
     
 if __name__ == '__main__':

@@ -1,0 +1,15 @@
+# grammar1, a sample grammar
+# S -> NP VP
+# S -> NN MM
+# NP -> NN
+# VP -> VT NP
+# VP -> VP PP
+# NP -> DT NN
+# DT -> the
+# NP -> john
+# NN -> john
+# VP -> walked
+S -> NP VP
+NP -> john
+VP -> walked
+NP -> NN

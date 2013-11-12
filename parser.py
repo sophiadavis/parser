@@ -71,10 +71,10 @@ def earley(grammar, sentence):
     pos_rules = grammar[1]
     terminals = grammar[2]
     
-    chart[0] = [['gamma', '.', ['S'], 0, 0]]
+    chart[0] = [['gamma', ['.', 'S'], 0, 0]]
     
-#     for i in range(0, n_bins):
-    for i in range(0, 1):
+    for i in range(0, n_bins):
+#     for i in range(0, 1):
         
         print
         print
@@ -100,24 +100,29 @@ def predictor(grammar, chart, index, rule):
     branch_rules = grammar[0]
     pos_rules = grammar[1]
     
-    dot = rule.index('.')
-    if isinstance(rule[dot + 1], int ):
-        print 'int'
+#     if isinstance(rule[2], int ):
+#         return chart
+        
+    dot = rule[1].index('.')
+    if dot == (len(rule[1]) - 1):
         return chart
         
+    beta_current = rule[1][dot + 1]   
     print rule
-    print "looking at: ", rule[dot + 1][0]
+    print "looking at: ", beta_current
     
-    if rule[dot + 1][0] in branch_rules.keys():
+    if beta_current in branch_rules.keys():
         print '      its in branch rules!'
-        for beta in branch_rules[rule[dot + 1][0]]:
-            chart[index] = add_rule([rule[dot + 1][0], '.', beta, index, index], chart[index])
+        for beta_next in branch_rules[beta_current]:
+            if beta_next[0] is not '.':
+                beta_next.insert(0, '.')
+            chart[index] = add_rule([beta_current, beta_next, index, index], chart[index])
             # this is already a list so leave the brackets off beta!
 
-    if rule[dot + 1][0] in pos_rules.keys():
+    if beta_current in pos_rules.keys():
         print '      its in pos rules!'
-        for beta in pos_rules[rule[dot + 1][0]]:
-            chart[index] = add_rule([rule[dot + 1][0], '.', [beta], index, index], chart[index])
+        for beta_next in pos_rules[beta_current]:
+            chart[index] = add_rule([beta_current, ['.', beta_next], index, index], chart[index])
 
     print "predictor completed: "
     print 'index', index, chart[index]
@@ -130,22 +135,26 @@ def scanner(grammar, chart, index, rule, sentence):
     pos_rules = grammar[1]
     terminals = grammar[2]
     
-    dot = rule.index('.')
-    if isinstance(rule[dot + 1], int ):
+#     if isinstance(rule[dot + 1], int ):
+#         return chart
+        
+    dot = rule[1].index('.')
+    if dot == (len(rule[1]) - 1):
         return chart
         
-    print "looking at: ", rule[dot + 1][0]
+    beta_current = rule[1][dot + 1]
+    print "looking at: ", beta_current
     
 #     if rule[dot + 1][0] in pos_rules.keys():
-    if rule[dot + 1][0] in terminals.keys():
+    if beta_current in terminals.keys():
         print '      its in terminals!'
 #         print '      its in pos rules!'
 #         for beta in pos_rules[rule[dot + 1][0]]:# + terminals.keys():
 #         for beta in terminals[rule[dot + 1][0]]:    
         print "looking at the next word: ", sentence[index]
-        if sentence[index] in terminals[rule[dot + 1][0]]:
+        if sentence[index] in terminals[beta_current]:
             print " ...matching... "
-            chart[index + 1] = add_rule([rule[dot + 1][0], [sentence[index]], '.', index, (index + 1)], chart[index + 1])
+            chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1)], chart[index + 1])
 
 #     if rule[dot + 1][0] in terminals.keys():
 #         print '      its in terminals!'
@@ -163,14 +172,19 @@ def scanner(grammar, chart, index, rule, sentence):
 def completer(chart, index, rule):
     print "in completer: "
     
-    dot = rule.index('.')
+    dot = rule[1].index('.')
 #     print rule
     
-    if isinstance(rule[dot + 1], int ):
+    if dot == (len(rule[1]) - 1):
         print 'end of rule'
         completed = rule[0]
+        rule_start = 4
         print "looking for: ", completed
         print '...wip...'
+#         for rule in chart[rule_start]:
+#             dot = rule.index('.')
+#             if rule[dot + 1] == completed:
+#                 chart[index] = add_rule([rule[0:dot], completed, '.', rule],chart[index])
 #         for i in range(0, index):
 #             for rule in chart[i]:
 #                 if [completed] in rule:

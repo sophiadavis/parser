@@ -1,0 +1,11 @@
+S -> NP VP
+NP -> NP PP
+NP -> Noun
+NP -> Det Noun
+VP -> Verb NP
+VP -> Verb
+
+Noun -> john
+Det -> the
+Noun -> cat
+Verb -> saw 

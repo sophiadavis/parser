@@ -25,8 +25,6 @@ def main():
     for line in f:
         print line
         if line.strip('\n'):
-    #         if line:
-    #         print line
             if line[0] == '#':
                 continue
             rule = line.split('->')
@@ -71,7 +69,7 @@ def earley(grammar, sentence):
     pos_rules = grammar[1]
     terminals = grammar[2]
     
-    chart[0] = [['gamma', ['.', 'S'], 0, 0]]
+    chart[0] = [['gamma', ['.', 'S'], 0, 0, []]]
     
     for i in range(0, n_bins):
 #     for i in range(0, 1):
@@ -96,10 +94,20 @@ def earley(grammar, sentence):
         for rule in chart[i]:
             print rule
     print
+    find_tree(chart)
+
+def find_tree(chart):
+    n_bins = len(chart.keys())
+    last_rule = chart[n_bins - 1][len(chart[n_bins - 1]) - 1]
+    if last_rule[0] == 'gamma':
+        print 'complete!'
+        backtrace = last_rule[4]
+        print backtrace[0]
+            
     
 def add_rule(rule, chart_bin):
     if rule not in chart_bin:
-        print 'adding rule: ', rule
+        print '      adding rule: ', rule
         chart_bin.append(rule)
     return chart_bin
 
@@ -124,13 +132,13 @@ def predictor(grammar, chart, index, rule):
         for beta_next in branch_rules[beta_current]:
             if beta_next[0] is not '.':
                 beta_next.insert(0, '.')
-            chart[index] = add_rule([beta_current, beta_next, index, index], chart[index])
+            chart[index] = add_rule([beta_current, beta_next, index, index, []], chart[index])
             # this is already a list so leave the brackets off beta!
 
     if beta_current in pos_rules.keys():
         print '      its in pos rules!'
         for beta_next in pos_rules[beta_current]:
-            chart[index] = add_rule([beta_current, ['.', beta_next], index, index], chart[index])
+            chart[index] = add_rule([beta_current, ['.', beta_next], index, index, []], chart[index])
 
     print "predictor completed."
     print 'index', index, chart[index]
@@ -142,9 +150,6 @@ def scanner(grammar, chart, index, rule, sentence):
     branch_rules = grammar[0]
     pos_rules = grammar[1]
     terminals = grammar[2]
-    
-#     if isinstance(rule[dot + 1], int ):
-#         return chart
         
     dot = rule[1].index('.')
     if dot == (len(rule[1]) - 1):
@@ -153,28 +158,19 @@ def scanner(grammar, chart, index, rule, sentence):
     beta_current = rule[1][dot + 1]
     print "looking at: ", beta_current
     
-#     if rule[dot + 1][0] in pos_rules.keys():
     if beta_current in terminals.keys():
-        print '      its in terminals!'
-#         print '      its in pos rules!'
-#         for beta in pos_rules[rule[dot + 1][0]]:# + terminals.keys():
-#         for beta in terminals[rule[dot + 1][0]]:    
-        print "looking at the next word: ", sentence[index]
+        print '      its in terminals!'  
+        print "      looking at the next word: ", sentence[index]
         if sentence[index] in terminals[beta_current]:
-            print " ...matching... "
-            chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1)], chart[index + 1])
-
-#     if rule[dot + 1][0] in terminals.keys():
-#         print '      its in terminals!'
-#         print "looking at the next word: ", sentence[index]
-#         if sentence[index] in terminals[rule[dot + 1][0]]:
-#             print " ...matching... "
-# #             chart[index + 1].append([rule[dot + 1][0], [sentence[index]], '.', index, (index + 1)])
-#             chart[index + 1] = add_rule([rule[dot + 1][0], [sentence[index]], '.', index, (index + 1)], chart[index + 1])
+            print "      ...matching... " # should I add index + 1?
+#             chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1), [index + 1]], chart[index + 1])
+            chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1), ['(' + beta_current + ' ' + sentence[index] +')']], chart[index + 1])
+            
     print "scanner completed."
     print 'index', index, chart[index]
     if len(chart.keys()) != index + 1:
         print 'index', index + 1, chart[index + 1]
+    print
     return chart
 
 def completer(chart, index, rule):
@@ -182,35 +178,53 @@ def completer(chart, index, rule):
     
     dot = rule[1].index('.')
     rule_start = rule[2]
-#     print rule
     
     if dot == (len(rule[1]) - 1):
-        print 'end of rule'
+        print '     end of rule'
         completed = rule[0]
         
         print "looking for: ", completed
-
+        
+        i = 0
         for rule_prev in chart[rule_start]:
-            print 'rule: ', rule_prev
+            
+            rule_index = chart[rule_start].index(rule_prev)
+            print '     rule: ', rule_prev, rule_index
             beta_prev = rule_prev[1]
             dot_prev = beta_prev.index('.')
-            print len(beta_prev), dot_prev
             if len(beta_prev) is not (dot_prev + 1):
-                print '  item: ', beta_prev[dot_prev + 1]
+                print '     item: ', beta_prev[dot_prev + 1]
                 if beta_prev[dot_prev + 1] == completed:
-                    print '     moving ', rule_prev
+                    print '       moving ', rule_prev
                     completed_index = beta_prev.index(completed)
                     rule_prev_start = rule_prev[2]
                     alpha = rule_prev[0]
-                    print '     dot at ', dot_prev, '__  completed at ', completed_index, '__ rule start', rule_prev_start
+#                     backtrace = rule_prev[4]
+                    backtrace = rule[4][0]
+                    print backtrace
+                    if len(beta_prev) == 2:
+                        new_backtrace = ['(' + alpha + ' ' + backtrace + ')']
+                        print 'len = 2'
+                    elif dot_prev == 0:
+                        new_backtrace = ['(' + alpha + ' ' + backtrace]
+                        print 'dot at 0'
+                    elif dot_prev == 1:
+                        new_backtrace = [rule_prev[4][0] + ' ' + backtrace + ')']
+                        print 'dot at 3'
+                    else:
+                        new_backtrace = [backtrace + 'mistake']
+                    print new_backtrace
                     # add rule with [alpha, [rule with dot moved], old start, current]
                     processed = beta_prev[0:dot_prev]
                     processed.append(completed)
                     processed.append('.')
                     beta = processed + beta_prev[completed_index + 1:]
-                    rule_progress = [alpha, beta, rule_prev_start, index]
+#                     rule_progress = [alpha, beta, rule_prev_start, index, backtrace + rule[:2] + rule[4:]]
+#                     rule_progress = [alpha, beta, rule_prev_start, index, backtrace + [[index, rule_index]]]
+                    rule_progress = [alpha, beta, rule_prev_start, index, new_backtrace]
                     print '     ', rule_progress
                     chart[index] = add_rule(rule_progress, chart[index])
+            i += 1
     
     print "completer completed."
     print 'index', index, chart[index]

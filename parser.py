@@ -94,16 +94,76 @@ def earley(grammar, sentence):
         for rule in chart[i]:
             print rule
     print
-    find_tree(chart)
+    last_bin = chart[n_bins - 1]
+    done = False
+    for rule in last_bin:
+        if rule[0] == 'gamma':
+            backtrace = rule[4][0]
+            done = True
+            find_tree(backtrace)
+    if not done:
+        print 'That sentence does not seem possible with this grammar. Please try again later. Good bye!'
 
-def find_tree(chart):
-    n_bins = len(chart.keys())
-    last_rule = chart[n_bins - 1][len(chart[n_bins - 1]) - 1]
-    if last_rule[0] == 'gamma':
-        print 'complete!'
-        backtrace = last_rule[4]
-        print backtrace[0]
+def find_tree(backtrace):
+    print backtrace
+    i = backtrace[1:].index('(')
+    print i
+    break_index = backtrace[i:]
+    to_print = ''
+    
+    left_stack = []
+    margin = 3
+    while i < len(backtrace):
+#         print backtrace[i]
+#         print 'to print: ', to_print
+#         print 'left stack: ', left_stack
+        if backtrace[i] not in ['(', ')']:
+            to_print = to_print + backtrace[i]
+#             print 'in if'
+            i += 1
+        elif backtrace[i] is '(':
+            left_stack.append('(')
+            to_print = to_print + backtrace[i]
+#             print 'in elif'
+            i += 1
+        else:
+            if left_stack:
+                left_stack.remove('(')
+                if len(left_stack) == 1:
+                    to_print = to_print + backtrace[i]
+                    print to_print
+                    to_print = ' ' * margin
+                    margin = 2 * margin
+    #                 print 'in else, if'
+                else:
+    #                 print 'in else, else'
+                    to_print = to_print + backtrace[i]
+            i += 1
+                
+#             to_print = to_print + backtrace[i]
+#             i += 1
+        # while backtrace[i] is not ')':
+#             to_print = to_print + backtrace[i]
+#             i += 1
+#         if backtrace[i] is ')':
+#             to_print = to_print + backtrace[i]
+#             i += 1
+#         else:
+#             print to_print
+#             to_print = ''
+#             i += 1
             
+        
+#         i = backtrace[1:].index('(')
+#         backtrace = 
+# #         if backtrace[i] == '(': 
+# #             print backtrace[i],
+#         if backtrace[i] == ')':
+#             print backtrace[i]
+#             print
+#         else:
+#             print backtrace[i],
+#         i += 1
     
 def add_rule(rule, chart_bin):
     if rule not in chart_bin:

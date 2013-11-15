@@ -1,0 +1,23 @@
+S -> NP VP
+NP -> DT NP
+NP -> N
+PP -> PREP NP
+VP -> VP PP
+VP -> V NP
+NP -> NP PP
+N -> david
+N -> bunny
+DT -> the
+V -> threw
+V -> kicked
+
+V -> shot
+
+DT -> an
+DT -> my
+
+PREP -> in
+N -> pajamas
+N -> elephant
+
+N -> i

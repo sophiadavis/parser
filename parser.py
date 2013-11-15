@@ -2,11 +2,11 @@
 parser.py  
 Sophia Davis,  for 11/15/13
 
+it does rely on normal form
 to do:
-    fix crash if empty line
-    no clones
-    completer
-    should I be storing beta's as a list?
+what happens if more than one parse? look up book's ambiguous parses
+each open paren go to new line
+    indent = number of open parenthesis that you've seen so far
 """
 import sys
 
@@ -100,46 +100,87 @@ def earley(grammar, sentence):
         if rule[0] == 'gamma':
             backtrace = rule[4][0]
             done = True
+            print backtrace
+            print
             find_tree(backtrace)
+            print
     if not done:
         print 'That sentence does not seem possible with this grammar. Please try again later. Good bye!'
 
 def find_tree(backtrace):
-    print backtrace
-    i = backtrace[1:].index('(')
-    print i
-    break_index = backtrace[i:]
+#     print backtrace
+    i = backtrace[1:].index('(') + 1
+#     print i
     to_print = ''
     
     left_stack = []
-    margin = 3
+    margin = 0
     while i < len(backtrace):
-#         print backtrace[i]
+#         print 'looking at: ', backtrace[i]
 #         print 'to print: ', to_print
 #         print 'left stack: ', left_stack
-        if backtrace[i] not in ['(', ')']:
-            to_print = to_print + backtrace[i]
-#             print 'in if'
-            i += 1
-        elif backtrace[i] is '(':
+        
+#         if backtrace[i] not in ['(', ')']:
+#             to_print = to_print + backtrace[i]
+# #             print 'in if'
+#             i += 1
+        if backtrace[i] is '(':
+#             print
             left_stack.append('(')
-            to_print = to_print + backtrace[i]
-#             print 'in elif'
+            
+#             print to_print
+#             to_print = backtrace[i] # ' ' * margin + 
+#             print
+            print to_print
+            print ' ' * len(left_stack),
+            to_print = backtrace[i] # to_print + backtrace[i]
+#             print 'after adding (: ', to_print
+#             to_print = ''
             i += 1
         else:
-            if left_stack:
-                left_stack.remove('(')
-                if len(left_stack) == 1:
-                    to_print = to_print + backtrace[i]
-                    print to_print
-                    to_print = ' ' * margin
-                    margin = 2 * margin
-    #                 print 'in else, if'
-                else:
-    #                 print 'in else, else'
-                    to_print = to_print + backtrace[i]
+            if backtrace[i] is ')':
+                if left_stack:
+                    left_stack.remove('(')
+#                 if len(left_stack) == 1:
+#                     to_print = to_print + backtrace[i]
+#                     print to_print
+#                     print '',
+#                     to_print = ' ' #* margin
+#     #                     margin += 2
+#     #                 print 'in else, if'
+#                 else:
+#     #                 print 'in else, else'
+            to_print = to_print + backtrace[i]
             i += 1
-                
+    print to_print
+#         if backtrace[i] not in ['(', ')']:
+#             to_print = to_print + backtrace[i]
+# #             print 'in if'
+#             i += 1
+#         elif backtrace[i] is '(':
+# #             print
+#             left_stack.append('(')
+#             
+# #             print to_print
+# #             to_print = backtrace[i] # ' ' * margin + 
+#             to_print = to_print + backtrace[i]
+#             i += 1
+#         else:
+#             if left_stack:
+#                 left_stack.remove('(')
+#                 if len(left_stack) == 1:
+#                     to_print = to_print + backtrace[i]
+#                     print to_print
+#                     print '',
+#                     to_print = ' ' #* margin
+#     #                     margin += 2
+#     #                 print 'in else, if'
+#                 else:
+#     #                 print 'in else, else'
+#                     to_print = to_print + backtrace[i]
+#             i += 1
+        
+#     print backtrace[i]        
 #             to_print = to_print + backtrace[i]
 #             i += 1
         # while backtrace[i] is not ')':
@@ -219,12 +260,13 @@ def scanner(grammar, chart, index, rule, sentence):
     print "looking at: ", beta_current
     
     if beta_current in terminals.keys():
-        print '      its in terminals!'  
-        print "      looking at the next word: ", sentence[index]
-        if sentence[index] in terminals[beta_current]:
-            print "      ...matching... " # should I add index + 1?
-#             chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1), [index + 1]], chart[index + 1])
-            chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1), ['(' + beta_current + ' ' + sentence[index] +')']], chart[index + 1])
+        if index < len(sentence):
+            print '      its in terminals!'  
+            print "      looking at the next word: ", sentence[index]
+            if sentence[index] in terminals[beta_current]:
+                print "      ...matching... " # should I add index + 1?
+    #             chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1), [index + 1]], chart[index + 1])
+                chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1), ['(' + beta_current + ' ' + sentence[index] +')']], chart[index + 1])
             
     print "scanner completed."
     print 'index', index, chart[index]
@@ -273,6 +315,7 @@ def completer(chart, index, rule):
                         print 'dot at 3'
                     else:
                         new_backtrace = [backtrace + 'mistake']
+                        print 'abcde'
                     print new_backtrace
                     # add rule with [alpha, [rule with dot moved], old start, current]
                     processed = beta_prev[0:dot_prev]

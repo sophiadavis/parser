@@ -108,103 +108,25 @@ def earley(grammar, sentence):
         print 'That sentence does not seem possible with this grammar. Please try again later. Good bye!'
 
 def find_tree(backtrace):
-#     print backtrace
     i = backtrace[1:].index('(') + 1
-#     print i
     to_print = ''
     
     left_stack = []
     margin = 0
     while i < len(backtrace):
-#         print 'looking at: ', backtrace[i]
-#         print 'to print: ', to_print
-#         print 'left stack: ', left_stack
-        
-#         if backtrace[i] not in ['(', ')']:
-#             to_print = to_print + backtrace[i]
-# #             print 'in if'
-#             i += 1
         if backtrace[i] is '(':
-#             print
             left_stack.append('(')
-            
-#             print to_print
-#             to_print = backtrace[i] # ' ' * margin + 
-#             print
             print to_print
             print ' ' * len(left_stack),
             to_print = backtrace[i] # to_print + backtrace[i]
-#             print 'after adding (: ', to_print
-#             to_print = ''
             i += 1
         else:
             if backtrace[i] is ')':
                 if left_stack:
                     left_stack.remove('(')
-#                 if len(left_stack) == 1:
-#                     to_print = to_print + backtrace[i]
-#                     print to_print
-#                     print '',
-#                     to_print = ' ' #* margin
-#     #                     margin += 2
-#     #                 print 'in else, if'
-#                 else:
-#     #                 print 'in else, else'
             to_print = to_print + backtrace[i]
             i += 1
     print to_print
-#         if backtrace[i] not in ['(', ')']:
-#             to_print = to_print + backtrace[i]
-# #             print 'in if'
-#             i += 1
-#         elif backtrace[i] is '(':
-# #             print
-#             left_stack.append('(')
-#             
-# #             print to_print
-# #             to_print = backtrace[i] # ' ' * margin + 
-#             to_print = to_print + backtrace[i]
-#             i += 1
-#         else:
-#             if left_stack:
-#                 left_stack.remove('(')
-#                 if len(left_stack) == 1:
-#                     to_print = to_print + backtrace[i]
-#                     print to_print
-#                     print '',
-#                     to_print = ' ' #* margin
-#     #                     margin += 2
-#     #                 print 'in else, if'
-#                 else:
-#     #                 print 'in else, else'
-#                     to_print = to_print + backtrace[i]
-#             i += 1
-        
-#     print backtrace[i]        
-#             to_print = to_print + backtrace[i]
-#             i += 1
-        # while backtrace[i] is not ')':
-#             to_print = to_print + backtrace[i]
-#             i += 1
-#         if backtrace[i] is ')':
-#             to_print = to_print + backtrace[i]
-#             i += 1
-#         else:
-#             print to_print
-#             to_print = ''
-#             i += 1
-            
-        
-#         i = backtrace[1:].index('(')
-#         backtrace = 
-# #         if backtrace[i] == '(': 
-# #             print backtrace[i],
-#         if backtrace[i] == ')':
-#             print backtrace[i]
-#             print
-#         else:
-#             print backtrace[i],
-#         i += 1
     
 def add_rule(rule, chart_bin):
     if rule not in chart_bin:
@@ -216,9 +138,6 @@ def predictor(grammar, chart, index, rule):
     print "in predictor: "
     branch_rules = grammar[0]
     pos_rules = grammar[1]
-    
-#     if isinstance(rule[2], int ):
-#         return chart
         
     dot = rule[1].index('.')
     if dot == (len(rule[1]) - 1):
@@ -234,7 +153,6 @@ def predictor(grammar, chart, index, rule):
             if beta_next[0] is not '.':
                 beta_next.insert(0, '.')
             chart[index] = add_rule([beta_current, beta_next, index, index, []], chart[index])
-            # this is already a list so leave the brackets off beta!
 
     if beta_current in pos_rules.keys():
         print '      its in pos rules!'
@@ -265,7 +183,6 @@ def scanner(grammar, chart, index, rule, sentence):
             print "      looking at the next word: ", sentence[index]
             if sentence[index] in terminals[beta_current]:
                 print "      ...matching... " # should I add index + 1?
-    #             chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1), [index + 1]], chart[index + 1])
                 chart[index + 1] = add_rule([beta_current, [sentence[index], '.'], index, (index + 1), ['(' + beta_current + ' ' + sentence[index] +')']], chart[index + 1])
             
     print "scanner completed."
@@ -301,7 +218,6 @@ def completer(chart, index, rule):
                     completed_index = beta_prev.index(completed)
                     rule_prev_start = rule_prev[2]
                     alpha = rule_prev[0]
-#                     backtrace = rule_prev[4]
                     backtrace = rule[4][0]
                     print backtrace
                     if len(beta_prev) == 2:
@@ -322,8 +238,6 @@ def completer(chart, index, rule):
                     processed.append(completed)
                     processed.append('.')
                     beta = processed + beta_prev[completed_index + 1:]
-#                     rule_progress = [alpha, beta, rule_prev_start, index, backtrace + rule[:2] + rule[4:]]
-#                     rule_progress = [alpha, beta, rule_prev_start, index, backtrace + [[index, rule_index]]]
                     rule_progress = [alpha, beta, rule_prev_start, index, new_backtrace]
                     print '     ', rule_progress
                     chart[index] = add_rule(rule_progress, chart[index])

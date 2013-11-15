@@ -1,23 +1,16 @@
 S -> NP VP
-NP -> DT NP
-NP -> N
-PP -> PREP NP
+NP -> Pronoun
+Pronoun -> i
+VP -> Verb NP
+NP -> Det Nominal
+Nominal -> Noun
+Nominal -> Nominal PP
+Noun -> elephant
+PP -> Prep NP
+Det -> my
+Noun -> pajamas
+
 VP -> VP PP
-VP -> V NP
-NP -> NP PP
-N -> david
-N -> bunny
-DT -> the
-V -> threw
-V -> kicked
-
-V -> shot
-
-DT -> an
-DT -> my
-
-PREP -> in
-N -> pajamas
-N -> elephant
-
-N -> i
+Verb -> shot
+Prep -> in
+Det -> an

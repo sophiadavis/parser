@@ -1,6 +1,7 @@
 # test grammar from the book p. 428
 S -> NP VP
-# S -> Aux NP VP
+S -> X1 VP
+X1 -> Aux NP
 S -> VP
 NP -> Pronoun
 NP -> Propernoun
@@ -10,13 +11,15 @@ Nominal -> Nominal Noun
 Nominal -> Nominal PP
 VP -> Verb
 VP -> Verb NP
-# VP -> Verb NP PP
+VP -> X2 PP
+X2 -> Verb NP
 VP -> Verb PP
 VP -> VP PP
 PP -> Preposition NP
 Det -> that
 Det -> this
 Det -> a
+Det -> the
 Noun -> book
 Noun -> flight
 Noun -> meal
@@ -34,4 +37,6 @@ Preposition -> to
 Preposition -> on
 Preposition -> near
 Preposition -> through
-Verb -> got
+Verb -> book
+Verb -> include
+Verb -> prefer
